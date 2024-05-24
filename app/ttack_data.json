@@ -1,0 +1,7 @@
+{
+    "xss_attacks": 0,
+    "sql_injection_attacks": 0,
+    "file_inclusion_attacks": 0,
+    "command_injection_attacks": 0,
+    "ddos_attacks": 0
+}
