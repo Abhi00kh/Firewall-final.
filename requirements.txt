@@ -98,7 +98,6 @@ python-dotenv==0.19.2
 python-engineio==4.9.0
 python-socketio==5.11.1
 pytz==2024.1
-pywin32==300
 pyzmq==25.1.2
 rcssmin==1.1.2
 referencing==0.33.0
