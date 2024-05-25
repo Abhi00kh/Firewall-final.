@@ -4,7 +4,10 @@
     {
       "src": "wsgi.py",
       "use": "@vercel/python",
-      "config": {"pythonVersion": "3.9"}
+      "config": {
+        "pipEnv": true,
+        "pythonVersion": "3.9"
+      }
     }
   ],
   "routes": [
