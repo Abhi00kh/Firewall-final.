@@ -31,6 +31,7 @@ filelock
 Flask
 Flask-Login
 Flask-Mail
+flask_pymongo
 Flask-Migrate
 Flask-Minify
 flask-restx
