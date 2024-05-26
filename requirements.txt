@@ -70,7 +70,7 @@ MarkupSafe
 matplotlib-inline
 ml-dtypes
 nest-asyncio
-numpy==1.26.3
+numpy
 oauthlib
 opt-einsum
 packaging
