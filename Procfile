@@ -1,1 +1,1 @@
-web: gunicorn -k eventlet -w 1 run:socketio
+gunicorn -k eventlet -w 1 run:socketio
