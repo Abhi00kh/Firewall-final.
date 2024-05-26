@@ -1,10 +1,14 @@
 {
-  "version": 3,
+  "version": 2,
+  "builds": [
+    { "src": "wsgi.py", "use": "@vercel/python" }
+  ],
   "routes": [
-    { "handle": "filesystem" },
-    {
-      "src": "/(.*)",
-      "dest": "/run.py"
-    }
-  ]
+    { "src": "/(.*)", "dest": "wsgi.py" }
+  ],
+  "env": {
+    "VERCEL": "true",
+    "FLASK_ENV": "production",
+    "FLASK_APP": "wsgi.py"
+  }
 }
