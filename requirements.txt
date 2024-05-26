@@ -61,7 +61,7 @@ jsonschema
 jsonschema-specifications
 jupyter_client
 jupyter_core
-keras==2.15.0
+keras
 lesscpy
 libclang
 Mako
