@@ -52,7 +52,6 @@ gast
 google-auth
 google-auth-oauthlib
 google-pasta
-greenlet
 grpcio
 gunicorn
 h11
@@ -79,7 +78,6 @@ Markdown
 MarkupSafe
 matplotlib-inline
 ml-dtypes
-mysqlclient
 nest-asyncio
 oauthlib
 opt-einsum
@@ -117,7 +115,7 @@ scapy
 simple-websocket
 six
 sniffio
-SQLAlchemy
+SQLAlchemy  # Remove this line
 stack-data
 starlette
 tenacity
@@ -143,4 +141,4 @@ WTForm
 WTForms
 xxhash
 zipp
-gevent>=1.4
+gevent>=1.4  # Add this line with a loose version constraint
