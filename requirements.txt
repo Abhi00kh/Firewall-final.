@@ -1,11 +1,3 @@
-# Keep strict versions for machine learning libraries
-tensorflow
-scikit-learn
-scipy
-numpy
-pandas
-
-# Remove strict versions for other dependencies
 absl-py
 alembic
 aniso8601
@@ -41,11 +33,9 @@ Flask-Login
 Flask-Mail
 Flask-Migrate
 Flask-Minify
-Flask-MySQLdb
 Flask-PyMongo
 flask-restx
 Flask-SocketIO
-Flask-SQLAlchemy
 Flask-WTF
 flatbuffers
 gast
@@ -97,7 +87,6 @@ pydantic
 pydantic_core
 Pygments
 pymongo
-PyMySQL
 python-dateutil
 python-dotenv
 python-engineio
@@ -115,12 +104,12 @@ scapy
 simple-websocket
 six
 sniffio
-SQLAlchemy  # Remove this line
 stack-data
 starlette
 tenacity
 tensorboard
 tensorboard-data-server
+tensorflow
 tensorflow-estimator
 termcolor
 threadpoolctl
@@ -140,4 +129,5 @@ WTForm
 WTForms
 xxhash
 zipp
-gevent>=1.4  # Add this line with a loose version constraint
+gevent>=1.4
+
