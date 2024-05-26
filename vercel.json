@@ -1,10 +1,10 @@
 {
-    "version": 2,
+    "version": 3,
     "builds": [
         {"src": "*.py", "use": "@vercel/python"}
     ],
     "routes": [
         {"handle": "filesystem"},
-        {"src": "/(.*)", "dest": "view.py"}
+        {"src": "/(.*)", "dest": "views.py"}
     ]
 }
