@@ -22,36 +22,18 @@ from flask import jsonify
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask_mail import Mail, Message
-import os  
+
 
 
 from bson import ObjectId
-# Dictionary to store models
-model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model')
+# Load models
 
-# Load XSS model
-xss_model = load_model(os.path.join(model_dir, 'xss_model.h5'))
-
-# Load SQL Injection model
-sql_injection_model = load_model(os.path.join(model_dir, 'sql_injection_model.h5'))
-
-# Load File Inclusion model
-file_inclusion_model = load_model(os.path.join(model_dir, 'file_inclusion.h5'))
-
-# Load Command Injection model
-command_injection_model = load_model(os.path.join(model_dir, 'command injection.h5'))
-
-# Load DDoS model
-ddos_model = load_model(os.path.join(model_dir, 'DDOS2.h5'))
-
-# Dictionary to store models
-models = {
-    'xss_model': xss_model,
-    'sql_injection_model': sql_injection_model,
-    'file_inclusion_model': file_inclusion_model,
-    'command_injection_model': command_injection_model,
-    'ddos_model': ddos_model
-}
+xss_model = load_model('app/model/xss_model.h5')
+sql_injection_model = load_model('app/model/sql_injection_model.h5')
+file_inclusion_model = load_model('app/model/file_inclusion.h5')
+command_injection_model = load_model('app/model/command injection.h5')
+ddos_model = load_model('app/model/DDOS2.h5')
+traffic_data = {}
 
 # Attack counters
 ddos_attacks = 0
@@ -60,7 +42,7 @@ sql_injection_attacks = 0
 file_inclusion_attacks = 0
 command_injection_attacks = 0
 
-# Preprocessing functions remain the same
+# Simplified preprocessing function for XSS, SQL Injection, File Inclusion, and Command Injection models
 def preprocess_input(text):
     alphabet = " abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[]{}"
     result = [] 
@@ -74,6 +56,7 @@ def preprocess_input(text):
     
     return np.array(padded_sequence)
 
+# Simplified preprocessing function for DDoS model
 def preprocess_ddos_input(data):
     # Pad the sequence to the desired length (Adjust the length based on your model)
     padded_sequence = np.pad(data, ((0, 0), (0, 51 - data.shape[1]), (0, 0)), mode='constant', constant_values=0)
@@ -132,6 +115,8 @@ def detect_ddos(request_data):
 
 def error_404():
     return render_template('NiceAdmin/NiceAdmin/pages-error-404.html')
+
+# Second intercept_requests function from the original code
 @app.before_request
 def intercept_requests():
     global xss_attacks, sql_injection_attacks, file_inclusion_attacks, command_injection_attacks
@@ -160,10 +145,7 @@ def intercept_requests():
 
         for attack_type in attack_types:
             # Model inference for each attack type
-            model = models.get(f"{attack_type}_model")
-            if model is None:
-                abort(500, description=f"{attack_type.capitalize()} model could not be loaded.")
-
+            model = globals()[f"{attack_type}_model"]
             prediction = model.predict(np.array([processed_input]))
 
             # Store the model prediction for the current attack type
