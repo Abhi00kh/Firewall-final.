@@ -27,61 +27,111 @@ import os
 
 from bson import ObjectId
 # Dictionary to store models
-models = {}
+model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model')
 
-def get_model(model_name):
-    if model_name not in models:
-        model_path = f'app/model/{model_name}.h5'
-        if os.path.exists(model_path):
-            models[model_name] = load_model(model_path)
-        else:
-            return None
-    return models[model_name]
+# Load XSS model
+xss_model = load_model(os.path.join(model_dir, 'xss_model.h5'))
+
+# Load SQL Injection model
+sql_injection_model = load_model(os.path.join(model_dir, 'sql_injection_model.h5'))
+
+# Load File Inclusion model
+file_inclusion_model = load_model(os.path.join(model_dir, 'file_inclusion.h5'))
+
+# Load Command Injection model
+command_injection_model = load_model(os.path.join(model_dir, 'command injection.h5'))
+
+# Load DDoS model
+ddos_model = load_model(os.path.join(model_dir, 'DDOS2.h5'))
+
+# Dictionary to store models
+models = {
+    'xss_model': xss_model,
+    'sql_injection_model': sql_injection_model,
+    'file_inclusion_model': file_inclusion_model,
+    'command_injection_model': command_injection_model,
+    'ddos_model': ddos_model
+}
+
+# Attack counters
+ddos_attacks = 0
+xss_attacks = 0
+sql_injection_attacks = 0
+file_inclusion_attacks = 0
+command_injection_attacks = 0
 
 # Preprocessing functions remain the same
 def preprocess_input(text):
     alphabet = " abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[]{}"
-    result = [alphabet.index(ch) for ch in text if ch in alphabet]
+    result = [] 
+    for ch in text:
+        if ch not in alphabet:
+            continue
+        result.append(alphabet.index(ch))
+    
+    # Padding to the desired max_len
     padded_sequence = result[:1000] + [0] * max(0, 1000 - len(result))
+    
     return np.array(padded_sequence)
 
 def preprocess_ddos_input(data):
+    # Pad the sequence to the desired length (Adjust the length based on your model)
     padded_sequence = np.pad(data, ((0, 0), (0, 51 - data.shape[1]), (0, 0)), mode='constant', constant_values=0)
     return padded_sequence
 
-# Update the detect_ddos function to use lazy loading
+# DDoS detection logic
 def detect_ddos(request_data):
     global ddos_attacks
-
+    
     if request.path == '/pages-login.html' and 'next' in request.args:
         return
     if '/static/assets/vendor/bootstrap-icons/fonts/' in request.path:
         return
-
+    # Check if the request is a POST
     if request_data.method == 'POST':
+        # Get the data from the request
         data = request_data.form
+
         for field, value in data.items():
+            # Preprocess input for DDoS detection
             processed_input = preprocess_ddos_input(value)
-            ddos_model = get_model('DDOS2')
-            if ddos_model is None:
-                abort(500, description="DDOS model could not be loaded.")
+
+            # Model inference for DDoS detection
             ddos_prediction = ddos_model.predict(np.array([processed_input]))
+
+            # Define a threshold based on your needs
             threshold = 0.5
+
+            # Make decision based on model prediction
             is_ddos_attack = ddos_prediction > threshold
+
+            # If DDoS attack detected, log and block the request
             if is_ddos_attack.any():
+                # Increment the counter
                 ddos_attacks += int(is_ddos_attack.any())
+
+                # Log the incident
                 app.logger.warning(f"DDOS Attack detected in field '{field}' of request: {request_data.form}")
+
+                # Store attack data in the database
                 attacks_collection.insert_one({
                     "type": "ddos",
                     "field": field,
                     "request_data": request_data.form,
-                    "timestamp": time.time()
+                    "timestamp": time.time()  # Add a timestamp for tracking
                 })
+
+                # Update the database with the latest counter values
                 update_counters()
+
+                # Emit the 'update_charts' event to update the client-side charts
                 socketio.emit('update_charts', {'ddos_attacks': int(ddos_attacks)})
+
+                # Block the request and return a 403 Forbidden response
                 return error_404()
 
-# Update the intercept_requests function to use lazy loading
+def error_404():
+    return render_template('NiceAdmin/NiceAdmin/pages-error-404.html')
 @app.before_request
 def intercept_requests():
     global xss_attacks, sql_injection_attacks, file_inclusion_attacks, command_injection_attacks
@@ -91,44 +141,67 @@ def intercept_requests():
     if '/static/assets/vendor/bootstrap-icons/fonts/' in request.path:
         return
 
+    # Get the data from the request
     if request.method == 'POST':
         data = request.form
     elif request.method == 'GET':
         data = request.args
     else:
-        data = request.data.decode('utf-8')
+        data = request.data.decode('utf-8')  # For other types of requests
 
     attack_types = ['xss', 'sql_injection', 'file_inclusion', 'command_injection']
 
     for field, value in data.items():
+        # Data preprocessing
         processed_input = preprocess_input(value)
+
+        # Initialize dictionary to store model predictions for each attack type
         attack_type_predictions = {}
 
         for attack_type in attack_types:
-            model = get_model(f"{attack_type}_model")
+            # Model inference for each attack type
+            model = models.get(f"{attack_type}_model")
             if model is None:
                 abort(500, description=f"{attack_type.capitalize()} model could not be loaded.")
+
             prediction = model.predict(np.array([processed_input]))
+
+            # Store the model prediction for the current attack type
             attack_type_predictions[attack_type] = prediction
 
+        # Print model predictions for debugging
         print(f"Predictions for field '{field}': {attack_type_predictions}")
 
+        # Determine the attack type with maximum confidence for this field
         max_confidence_attack_type = max(attack_type_predictions, key=lambda k: np.max(attack_type_predictions[k]))
+
+        # Get the maximum confidence for the chosen attack type
         max_confidence = np.max(attack_type_predictions[max_confidence_attack_type])
 
+        # Print debug information
         print(f"Max confidence attack type: {max_confidence_attack_type}")
         print(f"Max confidence: {max_confidence}")
 
-        if max_confidence > 0.9:
+        # Check if the maximum confidence exceeds the threshold
+        if max_confidence > 0.9:  # Adjust the threshold as needed
+            # Increment the corresponding attack counter
             globals()[f"{max_confidence_attack_type}_attacks"] += 1
+
+            # Log the incident
             app.logger.warning(f"{max_confidence_attack_type.capitalize()} Attack detected in field '{field}' of request: {request.form}")
+
+            # Store attack data in the database
             attacks_collection.insert_one({
                 "type": max_confidence_attack_type,
                 "field": field,
                 "request_data": request.form,
-                "timestamp": time.time()
+                "timestamp": time.time()  # Add a timestamp for tracking
             })
+
+            # Update the database with the latest counter values
             update_counters()
+
+            # Emit the 'update_charts' event to update the client-side charts
             socketio.emit('update_charts', {
                 'xss_attacks': int(xss_attacks),
                 'sql_injection_attacks': int(sql_injection_attacks),
@@ -136,7 +209,12 @@ def intercept_requests():
                 'command_injection_attacks': int(command_injection_attacks),
                 'ddos_attacks': int(ddos_attacks)
             })
+
+            # Block the request and return a 403 Forbidden response
             return error_404()
+
+def error_404():
+    return render_template('NiceAdmin/NiceAdmin/pages-error-404.html')
 
 # Initialize counters in the database
 def initialize_counters():
