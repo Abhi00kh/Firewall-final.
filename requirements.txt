@@ -130,4 +130,4 @@ WTForms
 xxhash
 zipp
 gevent>=1.4
-tensorflow-io-gcs-filesystem
+tensorflow-io-gcs-filesystem>=0.21.0,<0.22.0
