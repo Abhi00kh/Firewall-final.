@@ -143,3 +143,4 @@ WTForm
 WTForms
 xxhash
 zipp
+gevent>=1.4
