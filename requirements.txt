@@ -113,7 +113,6 @@ tensorboard
 tensorboard-data-server
 tensorflow
 tensorflow-estimator
-tensorflow-io-gcs-filesystem==0.37.0
 termcolor
 threadpoolctl
 tornado
