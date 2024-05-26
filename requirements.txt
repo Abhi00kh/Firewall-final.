@@ -109,9 +109,9 @@ sniffio
 stack-data
 starlette
 tenacity
-tensorboard==2.15.1
-tensorboard-data-server==0.7.2
-tensorflow==2.15.0
+tensorboard
+tensorboard-data-server
+tensorflow
 tensorflow-estimator
 tensorflow-io-gcs-filesystem
 termcolor
