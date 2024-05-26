@@ -122,7 +122,6 @@ tenacity
 tensorboard
 tensorboard-data-server
 tensorflow-estimator
-tensorflow-io-gcs-filesystem
 termcolor
 threadpoolctl
 tornado
