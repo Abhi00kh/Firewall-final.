@@ -91,7 +91,6 @@ pydantic_core
 Pygments
 pymongo
 pytz
-pywin32
 pyzmq
 rcssmin
 referencing
