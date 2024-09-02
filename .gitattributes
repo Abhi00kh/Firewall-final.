@@ -4,3 +4,5 @@
 
 *.html linguist-vendored=true
 *.CSS linguist-vendored=true
+*.css linguist-vendored=true
+
