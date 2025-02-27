@@ -1,4 +1,6 @@
-# Neural Network-Based Web Application Firewall (WAF)
+# DO NOT CLONE THIS PROJECT 
+
+#Neural Network-Based Web Application Firewall (WAF)
 
 ## Overview
 This project implements a **Neural Network-Based Web Application Firewall (WAF)** designed to protect web applications from **SQL Injection, XSS, DDoS, OS Command Injection, and File Inclusion attacks**. The system uses **deep learning models** to classify incoming HTTP requests as legitimate or malicious in real-time, achieving **95% accuracy** in detection. 
